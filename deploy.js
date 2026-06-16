@@ -1,65 +1,46 @@
 /**
- * 阿里云服务器部署脚本
+ * 一键部署脚本 - GitHub Pages
  *
- * 服务器：47.120.66.18
- * 部署方式：构建 → SCP 上传 → Nginx 托管
- *
- * 前置条件：
- *   1. 服务器已安装 Nginx（首次运行 npm run setup-server 自动配置）
- *   2. 本机已配置 SSH 密钥登录（ssh root@47.120.66.18 无需密码）
+ * 流程：构建 → git add → git commit → git push
+ * 推送后 GitHub Actions 自动部署到 GitHub Pages
  *
  * 使用方式：
- *   npm run deploy          # 构建并部署
- *   npm run setup-server    # 首次：安装并配置 Nginx
+ *   npm run deploy          # 一键部署
+ *   npm run deploy -- "提交信息"  # 自定义提交信息
  */
 
 const { execSync } = require('child_process')
-const path = require('path')
-
-const SERVER = 'root@47.120.66.18'
-const REMOTE_DIR = '/var/www/blog'
-const BUILD_DIR = path.join(__dirname, '.vitepress', 'dist')
 
 function run(cmd) {
   console.log(`> ${cmd}`)
-  execSync(cmd, { stdio: 'inherit', cwd: __dirname })
+  execSync(cmd, { stdio: 'inherit' })
 }
 
-const action = process.argv[2]
+try {
+  // 1. 构建
+  console.log('� 正在构建博客...')
+  run('npx vitepress build')
 
-if (action === 'setup') {
-  // 首次服务器配置
+  // 2. 提交
+  const msg = process.argv[2] || 'deploy: update blog'
+  console.log('\n📦 正在提交更改...')
+  run('git add -A')
+
+  // 检查是否有变更
   try {
-    console.log('🔧 正在配置服务器...')
-
-    // 在服务器上安装 Nginx 并创建目录
-    run(`ssh ${SERVER} "apt update && apt install -y nginx && mkdir -p ${REMOTE_DIR}"`)
-
-    // 上传 Nginx 配置
-    run(`scp nginx.conf ${SERVER}:/etc/nginx/sites-available/blog`)
-    run(`ssh ${SERVER} "ln -sf /etc/nginx/sites-available/blog /etc/nginx/sites-enabled/blog && rm -f /etc/nginx/sites-enabled/default && nginx -t && systemctl restart nginx"`)
-
-    console.log('\n✅ 服务器配置完成！')
-    console.log(`💡 访问 http://47.120.66.18 查看博客`)
-  } catch (e) {
-    console.error('\n❌ 服务器配置失败，请检查 SSH 连接')
-    process.exit(1)
+    execSync('git diff --cached --quiet', { stdio: 'ignore' })
+    console.log('⚠️  没有新的更改需要提交')
+  } catch {
+    run(`git commit -m "${msg}"`)
   }
-} else {
-  // 常规部署
-  try {
-    console.log('🔨 正在构建博客...')
-    run('npx vitepress build')
 
-    console.log('\n📦 正在上传到服务器...')
-    // 先清空远程目录，再上传
-    run(`ssh ${SERVER} "rm -rf ${REMOTE_DIR}/* && mkdir -p ${REMOTE_DIR}"`)
-    run(`scp -r "${BUILD_DIR}/*" ${SERVER}:${REMOTE_DIR}/`)
+  // 3. 推送
+  console.log('\n� 正在推送到 GitHub...')
+  run('git push')
 
-    console.log('\n✅ 部署完成！')
-    console.log(`💡 访问 http://47.120.66.18 查看博客`)
-  } catch (e) {
-    console.error('\n❌ 部署失败，请检查错误信息')
-    process.exit(1)
-  }
+  console.log('\n✅ 推送完成！GitHub Actions 正在自动部署...')
+  console.log('💡 部署完成后访问: https://<你的用户名>.github.io/mgl-blog/')
+} catch (e) {
+  console.error('\n❌ 部署失败，请检查错误信息')
+  process.exit(1)
 }
