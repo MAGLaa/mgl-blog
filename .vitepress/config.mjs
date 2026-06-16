@@ -75,6 +75,8 @@ export default defineConfig({
   lang: 'zh-CN',
   base: '/mgl-blog/',
 
+  appearance: 'light',
+
   themeConfig: {
     logo: '/logo.svg',
     siteTitle: 'MGL',
