@@ -56,7 +56,11 @@ function autoAddTags() {
             
             // 在 frontmatter 末尾插入 tags
             const newFm = frontmatter + `\ntags: [${tag}]`
-            const newContent = content.replace(/^---\n[\s\S]*?\n---/, `---\n${newFm}\n---`)
+            const newContent = content.replace(/^---
+[\s\S]*?
+---/, `---
+${newFm}
+---`)
             
             fs.writeFileSync(filePath, newContent, 'utf-8')
             console.log(`  ✓ 已为 ${path.relative(process.cwd(), filePath)} 添加标签: [${tag}]`)
@@ -82,7 +86,7 @@ try {
   console.log()
 
   // 1. 构建
-  console.log('� 正在构建博客...')
+  console.log('🔨 正在构建博客...')
   run('npx vitepress build')
 
   // 2. 提交
@@ -99,11 +103,11 @@ try {
   }
 
   // 3. 推送
-  console.log('\n� 正在推送到 GitHub...')
+  console.log('\n🚀 正在推送到 GitHub...')
   run('git push')
 
   console.log('\n✅ 推送完成！GitHub Actions 正在自动部署...')
-  console.log('💡 部署完成后访问: https://<你的用户名>.github.io/mgl-blog/')
+  console.log('💡 部署完成后访问: https://your-username.github.io/mgl-blog/')
 } catch (e) {
   console.error('\n❌ 部署失败，请检查错误信息')
   process.exit(1)

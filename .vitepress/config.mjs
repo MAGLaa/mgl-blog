@@ -71,11 +71,32 @@ function generateSidebar() {
 
 export default defineConfig({
   title: 'MGL的博客',
-  description: 'MGL的个人博客 - 技术笔记、生活随笔',
+  description: 'MGL的个人博客 - 技术笔记、生活随笔、架构探索',
   lang: 'zh-CN',
   base: '/mgl-blog/',
 
-  appearance: 'light',
+  // 仅使用浅色模式
+  appearance: false,
+
+  // 清理 URL
+  cleanUrls: true,
+
+  // 忽略死链检查（开发阶段）
+  ignoreDeadLinks: true,
+
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/mgl-blog/logo.svg' }],
+    ['meta', { name: 'theme-color', content: '#8d7b9e' }],
+    ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
+    ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:title', content: 'MGL的博客' }],
+    ['meta', { property: 'og:description', content: '探索技术 · 记录生活 · 永远好奇，永远热血' }],
+    ['meta', { property: 'og:site_name', content: 'MGL的博客' }],
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+    ['meta', { name: 'twitter:title', content: 'MGL的博客' }],
+    ['meta', { name: 'twitter:description', content: '探索技术 · 记录生活 · 永远好奇，永远热血' }],
+  ],
 
   themeConfig: {
     logo: '/logo.svg',
@@ -84,18 +105,18 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '技术笔记', link: '/posts/tech/' },
-      { text: '生活随笔', link: '/posts/life/' }
+      { text: '生活随笔', link: '/posts/life/' },
     ],
 
     sidebar: generateSidebar(),
 
     socialLinks: [
-      { icon: 'github', link: 'https://gitee.com/' }
+      { icon: 'github', link: 'https://github.com/' }
     ],
 
     footer: {
-      message: '基于 VitePress 构建',
-      copyright: '© 2026 MGL'
+      message: '用代码书写无限可能 ✨ 基于 VitePress 构建',
+      copyright: '© 2026 MGL · All Rights Reserved'
     },
 
     search: {
@@ -103,7 +124,7 @@ export default defineConfig({
       options: {
         translations: {
           button: {
-            buttonText: '搜索',
+            buttonText: '搜索文章',
             buttonAriaLabel: '搜索文章'
           },
           modal: {
@@ -120,7 +141,8 @@ export default defineConfig({
     },
 
     outline: {
-      label: '目录'
+      label: '本页目录',
+      level: [2, 3]
     },
 
     docFooter: {
@@ -133,9 +155,11 @@ export default defineConfig({
     },
 
     returnToTopLabel: '回到顶部',
-    darkModeSwitchLabel: '主题切换',
-    lightModeSwitchTitle: '切换到浅色模式',
-    darkModeSwitchTitle: '切换到深色模式'
+    sidebarMenuLabel: '菜单'
+  },
+
+  markdown: {
+    lineNumbers: true
   },
 
   vite: {
