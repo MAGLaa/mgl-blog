@@ -1,5 +1,9 @@
-import { readFileSync, readdirSync, existsSync } from 'fs';
-import { resolve, basename, join } from 'path';
+/**
+ * 文章数据加载模块（CommonJS）
+ * 负责从 posts/ 目录扫描 HTML 文件并解析元数据
+ */
+const { readFileSync, readdirSync, existsSync } = require('fs');
+const { resolve, basename, join } = require('path');
 
 const projectRoot = process.cwd();
 const postsDir = join(projectRoot, 'posts');
@@ -25,13 +29,13 @@ function extractTextFromHtml(html) {
 /**
  * 从文件名解析元数据
  */
-export function parseFileName(fileName) {
+function parseFileName(fileName) {
   const nameWithoutExt = basename(fileName, '.html');
   const parts = nameWithoutExt.split('-');
-  
+
   let date = '';
   let slugStartIdx = 0;
-  
+
   if (parts.length >= 3) {
     const potentialDate = `${parts[0]}-${parts[1]}-${parts[2]}`;
     if (/^\d{4}-\d{2}-\d{2}$/.test(potentialDate)) {
@@ -42,12 +46,12 @@ export function parseFileName(fileName) {
       }
     }
   }
-  
+
   const titleParts = parts.slice(slugStartIdx);
   const title = titleParts.map(part => {
     return part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
   }).join(' ') || nameWithoutExt;
-  
+
   return { date, title, slug: titleParts.join('-') || nameWithoutExt };
 }
 
@@ -61,7 +65,7 @@ function countWords(text) {
 }
 
 /** 估算阅读时间 */
-export function estimateReadingTime(text) {
+function estimateReadingTime(text) {
   const { chinese, english } = countWords(text);
   const minutes = Math.max(1, Math.ceil(chinese / 500 + english / 200));
   return `${minutes} 分钟`;
@@ -82,7 +86,7 @@ function extractSummary(text) {
 /**
  * 加载所有文章数据
  */
-export function loadPosts() {
+function loadPosts() {
   const posts = [];
   let idCounter = 0;
 
@@ -142,7 +146,7 @@ export function loadPosts() {
 /**
  * 按分类获取文章
  */
-export function getPostsByCategory(categoryDir) {
+function getPostsByCategory(categoryDir) {
   const posts = loadPosts();
   return posts.filter(p => p.categoryDir === categoryDir);
 }
@@ -150,7 +154,7 @@ export function getPostsByCategory(categoryDir) {
 /**
  * 获取单篇文章
  */
-export function getPost(categoryDir, slug) {
+function getPost(categoryDir, slug) {
   const posts = loadPosts();
   return posts.find(p => p.categoryDir === categoryDir && p.slug === slug);
 }
@@ -158,7 +162,7 @@ export function getPost(categoryDir, slug) {
 /**
  * 读取 HTML 文件内容
  */
-export function readHtmlFile(categoryDir, fileName) {
+function readHtmlFile(categoryDir, fileName) {
   const filePath = join(postsDir, categoryDir, fileName);
   if (existsSync(filePath)) {
     return readFileSync(filePath, 'utf-8');
@@ -169,10 +173,21 @@ export function readHtmlFile(categoryDir, fileName) {
 /**
  * 获取所有分类
  */
-export function getCategories() {
+function getCategories() {
   return Object.entries(CATEGORY_MAP).map(([dir, name]) => ({
     dir,
     name,
     count: loadPosts().filter(p => p.categoryDir === dir).length
   }));
 }
+
+module.exports = {
+  loadPosts,
+  getPostsByCategory,
+  getPost,
+  readHtmlFile,
+  getCategories,
+  CATEGORY_MAP,
+  postsDir,
+  projectRoot,
+};

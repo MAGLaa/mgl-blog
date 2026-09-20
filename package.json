@@ -1,16 +1,13 @@
 {
   "name": "mgl-blog",
-  "version": "1.0.0",
-  "description": "MGL的个人博客 - Astro + GitHub Pages",
+  "version": "2.0.0",
+  "description": "MGL的个人博客 - 纯静态构建（零依赖）",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "deploy": "node deploy.js"
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node build.js",
+    "preview": "node server.js --port 4173",
+    "new": "node new-post.js"
   },
-  "devDependencies": {
-    "@astrojs/sitemap": "^3.0.0",
-    "astro": "^7.2.0"
-  }
+  "devDependencies": {}
 }

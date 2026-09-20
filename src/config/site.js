@@ -1,9 +1,10 @@
 /**
- * 站点配置
+ * 站点配置（CommonJS）
  */
-export const siteConfig = {
+module.exports.siteConfig = {
   title: 'MGL的博客',
   description: 'MGL的个人博客 - 技术笔记、项目实战、生活随笔',
+  // build 时使用 '/mgl-blog/'，dev 时 server.js 会用 '/' 覆盖
   base: '/mgl-blog/',
 
   nav: [
@@ -14,7 +15,7 @@ export const siteConfig = {
   ],
 
   footer: {
-    message: '用代码书写无限可能 ✨ 基于 Astro 构建',
+    message: '用代码书写无限可能 ✨ 纯静态构建',
     copyright: '© 2026 MGL · All Rights Reserved'
   },
 
