@@ -365,7 +365,7 @@ pre { font-family: var(--font-mono); overflow-x: auto; }
 .html-content figcaption { margin-top: 1em; font-size: 0.88rem; color: var(--text-3); font-style: italic; position: relative; padding-top: 0.5em; }
 .html-content figcaption::before { content: ''; display: block; width: 30px; height: 2px; background: var(--gradient-primary); margin: 0 auto 0.5em; border-radius: 2px; }
 .html-content .table-wrapper { overflow-x: auto; margin: 2em 0; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06); border: 1px solid var(--divider); }
-.html-content table { width: 100%; max-width: 100%; border-collapse: collapse; margin: 0; font-size: 0.92rem; background: var(--bg-elv); overflow-x: auto; display: block; border: 1px solid #000; }
+.html-content table { width: 100%; max-width: 100%; border-collapse: collapse; margin: 0; font-size: 0.92rem; background: var(--bg-elv); border: 1px solid #000; }
 .html-content th { background: var(--bg-soft); font-weight: 600; color: var(--text-1); padding: 14px 16px; text-align: left; border: 1px solid #000; white-space: nowrap; }
 .html-content td { padding: 12px 16px; border: 1px solid #000; color: var(--text-1); line-height: 1.6; }
 .html-content tr:nth-child(even) td { background: var(--bg-soft); }
