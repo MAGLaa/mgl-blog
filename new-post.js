@@ -36,27 +36,28 @@ const cat = categoryMap[category] || categoryMap.tech
 const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()) : []
 const date = new Date().toISOString().split('T')[0]
 
-// 生成文件名（使用拼音或英文）
+// 生成文件名（仅替换 Windows 非法字符，保留中英文）
 const slug = title
-  .replace(/[^\w\u4e00-\u9fff]/g, '-')
+  .replace(/[\\/:*?"<>|]/g, '-')
   .replace(/-+/g, '-')
   .replace(/^-|-$/g, '')
   .substring(0, 50)
   || 'untitled'
 
-const filePath = path.join(__dirname, 'posts', cat.dir, `${slug}.md`)
+const filePath = path.join(__dirname, 'posts', cat.dir, `${slug}.html`)
 
-const content = `---
-title: ${title}
-date: ${date}
-tags: [${tags.join(', ')}]
-category: ${cat.name}
----
-
-# ${title}
-
-在这里写你的文章内容...
-
+const content = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <p>在这里写你的文章内容...</p>
+</body>
+</html>
 `
 
 fs.writeFileSync(filePath, content, 'utf-8')
@@ -64,7 +65,6 @@ fs.writeFileSync(filePath, content, 'utf-8')
 console.log(`✅ 文章已创建: ${filePath}`)
 console.log(`📝 标题: ${title}`)
 console.log(`📂 分类: ${cat.name}`)
-console.log(`🏷️  标签: ${tags.join(', ') || '无'}`)
 console.log(`📅 日期: ${date}`)
 console.log('')
-console.log('💡 提示: sidebar 已自动生成，无需手动配置')
+console.log('💡 提示: 文章页面会在下次构建时自动生成，无需手动配置')

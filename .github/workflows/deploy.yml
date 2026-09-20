@@ -1,4 +1,4 @@
-name: Deploy VitePress site to GitHub Pages
+name: Deploy Astro site to GitHub Pages
 
 on:
   push:
@@ -35,13 +35,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build with VitePress
+      - name: Build with Astro
         run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .vitepress/dist
+          path: dist
 
   deploy:
     environment:

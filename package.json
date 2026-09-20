@@ -1,14 +1,16 @@
 {
   "name": "mgl-blog",
   "version": "1.0.0",
-  "description": "MGL的个人博客 - VitePress + GitHub Pages",
+  "description": "MGL的个人博客 - Astro + GitHub Pages",
   "scripts": {
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "preview": "vitepress preview",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
     "deploy": "node deploy.js"
   },
   "devDependencies": {
-    "vitepress": "^1.6.3"
+    "@astrojs/sitemap": "^3.0.0",
+    "astro": "^7.2.0"
   }
 }

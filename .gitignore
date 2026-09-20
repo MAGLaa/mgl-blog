@@ -1,8 +1,11 @@
 node_modules/
-.vitepress/dist/
-.vitepress/cache/
-docs/
+dist/
+.astro/
 .deploy_temp/
 *.log
 .DS_Store
 Thumbs.db
+
+# IDE
+.vscode/
+.idea/
