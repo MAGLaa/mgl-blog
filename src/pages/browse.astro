@@ -1,0 +1,395 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../config/site.js';
+import { loadPosts } from '../lib/posts.js';
+
+const { base, categories } = siteConfig;
+const allPosts = loadPosts();
+
+// 按分类分组
+const groupedPosts = Object.entries(categories).map(([dir, config]) => ({
+  dir,
+  name: config.name,
+  icon: config.icon,
+  posts: allPosts.filter(p => p.categoryDir === dir)
+}));
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  return `${y}-${parseInt(m)}-${parseInt(d)}`;
+}
+---
+
+<BaseLayout title="文章树" description="按分类浏览所有文章">
+  <div class="tree-page">
+    <header class="tree-header">
+      <h1>📁 文章树</h1>
+      <p class="tree-desc">按分类浏览所有文章，点击箭头展开/折叠</p>
+      <div class="tree-actions">
+        <button class="tree-btn" id="expandAll">全部展开</button>
+        <button class="tree-btn" id="collapseAll">全部折叠</button>
+      </div>
+    </header>
+
+    <div class="tree-container">
+      {groupedPosts.map(group => (
+        <div class="tree-category" data-category={group.dir}>
+          <div class="tree-category-header">
+            <button class="tree-toggle" aria-label="展开/折叠">
+              <svg class="tree-arrow" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <span class="tree-icon">{group.icon}</span>
+            <span class="tree-category-name">{group.name}</span>
+            <span class="tree-count">{group.posts.length}</span>
+          </div>
+          
+          <div class="tree-posts">
+            {group.posts.length > 0 ? (
+              group.posts.map(post => (
+                <a 
+                  href={`${base}${post.url.replace('/', '')}`}
+                  class="tree-post"
+                  data-category={group.dir}
+                >
+                  <span class="tree-post-dot">•</span>
+                  <span class="tree-post-title">{post.title}</span>
+                  <span class="tree-post-meta">
+                    {post.date && <span class="tree-post-date">{formatDate(post.date)}</span>}
+                    <span class="tree-post-time">📖 {post.readingTime}</span>
+                  </span>
+                </a>
+              ))
+            ) : (
+              <div class="tree-empty">暂无文章</div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const categories = document.querySelectorAll('.tree-category');
+      
+      // 默认展开第一个分类
+      if (categories.length > 0) {
+        categories[0].classList.add('expanded');
+        const firstArrow = categories[0].querySelector('.tree-arrow');
+        if (firstArrow) firstArrow.style.transform = 'rotate(90deg)';
+      }
+      
+      // 点击分类头部展开/折叠
+      categories.forEach(category => {
+        const header = category.querySelector('.tree-category-header');
+        const arrow = category.querySelector('.tree-arrow');
+        
+        header.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const isExpanded = category.classList.toggle('expanded');
+          
+          if (arrow) {
+            arrow.style.transform = isExpanded ? 'rotate(90deg)' : 'rotate(0deg)';
+          }
+        });
+      });
+      
+      // 全部展开
+      const expandAllBtn = document.getElementById('expandAll');
+      if (expandAllBtn) {
+        expandAllBtn.addEventListener('click', () => {
+          categories.forEach(category => {
+            category.classList.add('expanded');
+            const arrow = category.querySelector('.tree-arrow');
+            if (arrow) arrow.style.transform = 'rotate(90deg)';
+          });
+        });
+      }
+      
+      // 全部折叠
+      const collapseAllBtn = document.getElementById('collapseAll');
+      if (collapseAllBtn) {
+        collapseAllBtn.addEventListener('click', () => {
+          categories.forEach(category => {
+            category.classList.remove('expanded');
+            const arrow = category.querySelector('.tree-arrow');
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+          });
+        });
+      }
+      
+      // 点击文章链接时的处理（阻止冒泡到父分类）
+      const posts = document.querySelectorAll('.tree-post');
+      posts.forEach(post => {
+        post.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      });
+    });
+  </script>
+
+  <style>
+    .tree-page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    .tree-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .tree-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tree-desc {
+      color: var(--text-3);
+      font-size: 0.95rem;
+      margin: 0 0 24px;
+    }
+
+    .tree-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .tree-btn {
+      padding: 8px 20px;
+      border: 1px solid var(--divider);
+      border-radius: 20px;
+      background: var(--bg-elv);
+      color: var(--text-2);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .tree-btn:hover {
+      background: var(--brand-soft);
+      color: var(--brand-1);
+      border-color: var(--brand-3);
+    }
+
+    .tree-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .tree-category {
+      background: var(--bg-elv);
+      border: 1px solid var(--divider);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .tree-category:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .tree-category-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 24px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s ease;
+    }
+
+    .tree-category-header:hover {
+      background: var(--bg-soft);
+    }
+
+    .tree-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: var(--bg-soft);
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 0;
+      color: var(--text-2);
+      transition: all 0.25s ease;
+    }
+
+    .tree-toggle:hover {
+      background: var(--brand-soft);
+      color: var(--brand-1);
+    }
+
+    .tree-arrow {
+      display: block;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tree-category:hover .tree-arrow {
+      color: var(--brand-1);
+    }
+
+    .tree-icon {
+      font-size: 1.3rem;
+    }
+
+    .tree-category-name {
+      flex: 1;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+
+    .tree-count {
+      background: var(--brand-soft);
+      color: var(--brand-1);
+      padding: 2px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .tree-posts {
+      display: none;
+      padding: 8px 0 12px;
+      border-top: 1px solid var(--divider);
+      background: var(--bg-alt);
+    }
+
+    .tree-category.expanded .tree-posts {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tree-post {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px 12px 64px;
+      text-decoration: none;
+      color: var(--text-1);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .tree-post:hover {
+      background: var(--brand-soft);
+      padding-left: 72px;
+    }
+
+    .tree-post-dot {
+      position: absolute;
+      left: 48px;
+      color: var(--brand-3);
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .tree-post:hover .tree-post-dot {
+      color: var(--brand-1);
+    }
+
+    .tree-post-title {
+      flex: 1;
+      font-size: 0.98rem;
+      color: var(--text-1);
+      transition: color 0.2s;
+    }
+
+    .tree-post:hover .tree-post-title {
+      color: var(--brand-1);
+    }
+
+    .tree-post-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.82rem;
+      color: var(--text-3);
+    }
+
+    .tree-post-date {
+      white-space: nowrap;
+    }
+
+    .tree-post-time {
+      white-space: nowrap;
+    }
+
+    .tree-empty {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .tree-page {
+        padding: 32px 16px;
+      }
+
+      .tree-header h1 {
+        font-size: 1.6rem;
+      }
+
+      .tree-category-header {
+        padding: 14px 16px;
+      }
+
+      .tree-post {
+        padding: 10px 16px 10px 48px;
+      }
+
+      .tree-post:hover {
+        padding-left: 52px;
+      }
+
+      .tree-post-dot {
+        left: 32px;
+      }
+
+      .tree-post-meta {
+        gap: 10px;
+        font-size: 0.78rem;
+      }
+
+      .tree-post-date {
+        display: none;
+      }
+
+      .tree-toggle {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  </style>
+</BaseLayout>
